@@ -28,9 +28,10 @@ public final class ImmutableArrayList implements ImmutableList {
     }
 
     private Object[] resize(Object[] currList) {
-        if (currList.length == 0) { currList = Arrays.copyOf(currList, 1); }
-        else { currList = Arrays.copyOf(currList, currList.length * 2); }
-        return currList;
+        Object[] newList;
+        if (currList.length == 0) { newList = Arrays.copyOf(currList, 1); }
+        else { newList = Arrays.copyOf(currList, currList.length * 2); }
+        return newList;
     }
 
     private ImmutableArrayList makeNew() {
