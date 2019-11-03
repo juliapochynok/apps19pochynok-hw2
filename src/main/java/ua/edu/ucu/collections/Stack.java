@@ -6,9 +6,9 @@ public class Stack {
 
     private ImmutableLinkedList stack;
 
-    public Stack() { stack = new ImmutableLinkedList();}
+    public Stack() { stack = new ImmutableLinkedList(); }
 
-    public Stack(Object[] objs) { stack = new ImmutableLinkedList(objs);}
+    public Stack(Object[] objs) { stack = new ImmutableLinkedList(objs); }
 
     public Object peek() {
         return stack.getLast();
