@@ -1,5 +1,38 @@
 package ua.edu.ucu.collections.immutable;
 
+// package-private class
+class Node {
+    private Object value;
+    private Node next;
+
+    Node() {
+        value = null;
+        next = null;
+    }
+
+    Node(Object val) {
+        value = val;
+        next = null;
+    }
+
+    Object getValue() {
+        return value;
+    }
+
+    void setValue(Object value) {
+        this.value = value;
+    }
+
+    Node getNext() {
+        return next;
+    }
+
+    void setNext(Node next) {
+        this.next = next;
+    }
+}
+
+
 public final class ImmutableLinkedList implements ImmutableList {
 
     private Node head;
@@ -22,7 +55,8 @@ public final class ImmutableLinkedList implements ImmutableList {
         }
 
     private ImmutableLinkedList makeNew() {
-        ImmutableLinkedList newList = new ImmutableLinkedList(new Object[] {head.getValue()});
+        ImmutableLinkedList newList =
+                new ImmutableLinkedList(new Object[] {head.getValue()});
         Node currNodeThis = head.getNext();
         Node currNodeNew = newList.head;
         while (currNodeThis != null) {
@@ -80,9 +114,9 @@ public final class ImmutableLinkedList implements ImmutableList {
             throw new IndexOutOfBoundsException();
         }
         else if (index == 0) {
-            ImmutableLinkedList newList1 = new ImmutableLinkedList(c);
-            if (head.getValue() != null) newList1.tail.setNext(head);
-            return newList1;
+            ImmutableLinkedList newList = new ImmutableLinkedList(c);
+            if (head.getValue() != null) { newList.tail.setNext(head); }
+            return newList;
         }
         else {
             ImmutableLinkedList newList = makeNew();
@@ -90,14 +124,13 @@ public final class ImmutableLinkedList implements ImmutableList {
             Node currNode = newList.nodeAtIndex(index);
             int newInd = index - 1;
             for (Object el: c) {
-                Node newNode = new Node(el);
-                previousNode.setNext(newNode);
-                previousNode = newNode;
+                previousNode.setNext(new Node(el));
+                previousNode = previousNode.getNext();
                 newInd++;
             }
             Node newNode = newList.nodeAtIndex(newInd);
             newNode.setNext(currNode);
-            if (currNode == null) { newList.tail = newNode;}
+            if (currNode == null) { newList.tail = newNode; }
             return newList;
         }
     }
@@ -146,7 +179,7 @@ public final class ImmutableLinkedList implements ImmutableList {
     public int size() {
         Node currNode = head;
         int counter = 0;
-        if (head.getValue() == null) {return counter;}
+        if (head.getValue() == null) { return counter; }
         while (currNode != null) {
             currNode = currNode.getNext();
             counter++;

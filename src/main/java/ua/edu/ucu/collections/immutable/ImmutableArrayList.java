@@ -17,7 +17,7 @@ public final class ImmutableArrayList implements ImmutableList {
     }
 
     public ImmutableArrayList(Object[] objs) {
-        myList = objs;
+        myList = objs.clone();
         int counter = 0;
         for (Object el : objs) {
             if (el == null) { break; }
@@ -27,10 +27,10 @@ public final class ImmutableArrayList implements ImmutableList {
         lstCapacity = myList.length;
     }
 
-    private Object[] resize(Object[] lst) {
-        if (lst.length == 0) { lst = Arrays.copyOf(lst, 1); }
-        else { lst = Arrays.copyOf(lst, lst.length * 2); }
-        return lst;
+    private Object[] resize(Object[] currLst) {
+        if (currLst.length == 0) { currLst = Arrays.copyOf(currLst, 1); }
+        else { currLst = Arrays.copyOf(currLst, currLst.length * 2); }
+        return currLst;
     }
 
     private ImmutableArrayList makeNew() {
@@ -42,7 +42,8 @@ public final class ImmutableArrayList implements ImmutableList {
     @Override
     public ImmutableList add(Object e) {
         ImmutableArrayList newList = makeNew();
-        if (newList.lstCapacity == 0 || newList.lstCapacity - newList.elNum <= 0) {
+        if (newList.lstCapacity == 0 || newList.lstCapacity
+                - newList.elNum <= 0) {
             newList.myList = resize(newList.myList);
             newList.lstCapacity = newList.lstCapacity * 2;
         }
@@ -59,8 +60,10 @@ public final class ImmutableArrayList implements ImmutableList {
             Object[] workList = new Object[lstCapacity + 1];
             System.arraycopy(myList, 0, workList, 0, index);
             workList[index] = e;
-            if (lstCapacity - index >= 0) System.arraycopy(myList, index,
-                    workList, index + 1, lstCapacity - index);
+            if (lstCapacity - index >= 0) {
+                System.arraycopy(myList, index,
+                        workList, index + 1, lstCapacity - index);
+            }
             return new ImmutableArrayList(workList);
         }
     }
@@ -89,7 +92,9 @@ public final class ImmutableArrayList implements ImmutableList {
                 if (newList.lstCapacity - lengthC >= newList.elNum) {
                     int it = newList.elNum;
                     newList.myList[it] = c[i];
-                    newList.elNum++; i++; lengthC--;
+                    newList.elNum++;
+                    i++;
+                    lengthC--;
                 } else {
                     newList.myList = resize(newList.myList);
                     newList.lstCapacity = newList.lstCapacity * 2;
@@ -99,8 +104,8 @@ public final class ImmutableArrayList implements ImmutableList {
                 newList.myList = resize(newList.myList);
                 newList.lstCapacity = newList.lstCapacity * 2;
             }
-            for (int i1 = index; i1 < elNum; i1++) {
-                newList.myList[i1 + c.length] = myList[i1];
+            for (int e = index; e < elNum; e++) {
+                newList.myList[e + c.length] = myList[e];
                 newList.elNum++;
             }
             return newList;
@@ -143,7 +148,7 @@ public final class ImmutableArrayList implements ImmutableList {
     @Override
     public int indexOf(Object e) {
         for (int i = 0; i < elNum; i++) {
-            if (myList[i] == e) { return i;}
+            if (myList[i] == e) { return i; }
         }
         return -1;
     }
@@ -159,9 +164,7 @@ public final class ImmutableArrayList implements ImmutableList {
     }
 
     @Override
-    public boolean isEmpty() {
-        return (elNum == 0);
-    }
+    public boolean isEmpty() { return elNum == 0; }
 
     @Override
     public Object[] toArray() {
@@ -173,7 +176,7 @@ public final class ImmutableArrayList implements ImmutableList {
         StringBuilder strList = new StringBuilder();
         for (int i = 0; i < elNum; i++) {
             strList.append(myList[i]);
-            if (i != elNum - 1) { strList.append(", ");}
+            if (i != elNum - 1) { strList.append(", "); }
         }
         return strList.toString();
     }
