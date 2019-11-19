@@ -1,5 +1,6 @@
 package ua.edu.ucu.collections.immutable;
-
+import java.lang.Math;
+import java.util.Objects;
 
 public final class ImmutableLinkedList implements ImmutableList {
 
@@ -44,44 +45,54 @@ public final class ImmutableLinkedList implements ImmutableList {
         return currNode;
     }
 
+    private void checkIndex(int index) {
+        if (index > size() || index < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+    }
+
     @Override
-    public ImmutableList add(Object e) {
+    public ImmutableLinkedList add(Object e) {
         return add(size(), e);
     }
 
     @Override
-    public ImmutableList add(int index, Object e) {
-        if (index > size() || index < 0) {
-            throw new IndexOutOfBoundsException();
-        }
-        else if (index == 0) {
-            ImmutableLinkedList newList = makeNew();
-            newList.head.setValue(e);
-            newList.tail = newList.head;
-            return newList;
-        }
-        else {
-            ImmutableLinkedList newList = makeNew();
-            Node previousNode = newList.nodeAtIndex(index - 1);
-            Node currNode = newList.nodeAtIndex(index);
-            Node newNode = new Node(e);
-            newNode.setNext(currNode);
-            previousNode.setNext(newNode);
-            return newList;
-        }
+    public ImmutableLinkedList add(int index, Object e) {
+        checkIndex(index);
+        Object[] withE = new Object[1];
+        withE[0] = e;
+        return addAll(index, withE);
+
+        //Залишила також внизу минулий код, який був зданий
+//        if (index > size() || index < 0) {
+//            throw new IndexOutOfBoundsException();
+//        }
+        //        else if (index == 0) {
+//            ImmutableLinkedList newList = makeNew();
+//            newList.head.setValue(e);
+//            newList.tail = newList.head;
+//            return newList;
+//        }
+//        else {
+//            ImmutableLinkedList newList = makeNew();
+//            Node previousNode = newList.nodeAtIndex(index - 1);
+//            Node currNode = newList.nodeAtIndex(index);
+//            Node newNode = new Node(e);
+//            newNode.setNext(currNode);
+//            previousNode.setNext(newNode);
+//            return newList;
+//        }
     }
 
     @Override
-    public ImmutableList addAll(Object[] c) {
+    public ImmutableLinkedList addAll(Object[] c) {
         return addAll(size(), c);
     }
 
     @Override
-    public ImmutableList addAll(int index, Object[] c) {
-        if (index > size() || index < -1) {
-            throw new IndexOutOfBoundsException();
-        }
-        else if (index == 0) {
+    public ImmutableLinkedList addAll(int index, Object[] c) {
+        checkIndex(index);
+        if (index == 0) {
             ImmutableLinkedList newList = new ImmutableLinkedList(c);
             if (head.getValue() != null) { newList.tail.setNext(head); }
             return newList;
@@ -112,7 +123,7 @@ public final class ImmutableLinkedList implements ImmutableList {
     }
 
     @Override
-    public ImmutableList remove(int index) {
+    public ImmutableLinkedList remove(int index) {
         if (index >= size() || index < 0) {
             throw new IndexOutOfBoundsException();
         }
@@ -137,11 +148,24 @@ public final class ImmutableLinkedList implements ImmutableList {
     public int indexOf(Object e) {
         Node currNode = head;
         for (int i = 0; i < size(); i++) {
-            if (currNode.getValue() == e) { return i; }
+            if (equals(currNode.getValue(), e)) { return i; }
             currNode = currNode.getNext();
         }
         return -1;
     }
+
+    private boolean equals(Object given, Object val) {
+        if (this == val)
+            return true;
+        if (val == null || given.getClass() != val.getClass()) return false;
+        return Objects.equals(given, val);
+    }
+
+//    private double hashCode(Object val) {
+//        int p = 37;
+//        double d = 0.107;
+//        return Math.pow(p * p * (int) val, d);
+//    }
 
     @Override
     public int size() {
@@ -156,7 +180,7 @@ public final class ImmutableLinkedList implements ImmutableList {
     }
 
     @Override
-    public ImmutableList clear() {
+    public ImmutableLinkedList clear() {
         return new ImmutableLinkedList();
     }
 

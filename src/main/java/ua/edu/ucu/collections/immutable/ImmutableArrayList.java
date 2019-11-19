@@ -1,8 +1,7 @@
 package ua.edu.ucu.collections.immutable;
 
-
 import java.util.Arrays;
-
+import java.util.Objects;
 
 public final class ImmutableArrayList implements ImmutableList {
 
@@ -30,8 +29,21 @@ public final class ImmutableArrayList implements ImmutableList {
     private Object[] resize(Object[] currList) {
         Object[] newList;
         if (currList.length == 0) { newList = Arrays.copyOf(currList, 1); }
-        else { newList = Arrays.copyOf(currList, currList.length * 2); }
+        else { newList = Arrays.copyOf(currList, currList.length + 1); }
         return newList;
+    }
+
+    private Object[] resizeDown(Object[] currList) {
+        Object[] newList;
+        if (currList.length == 0) { newList = Arrays.copyOf(currList, 1); }
+        else { newList = Arrays.copyOf(currList, currList.length - 1); }
+        return newList;
+    }
+
+    private void checkIndex(int index) {
+        if (index > size() || index < 0) {
+            throw new IndexOutOfBoundsException();
+        }
     }
 
     private ImmutableArrayList makeNew() {
@@ -41,49 +53,59 @@ public final class ImmutableArrayList implements ImmutableList {
     }
 
     @Override
-    public ImmutableList add(Object e) {
-        ImmutableArrayList newList = makeNew();
-        if (newList.lstCapacity == 0 || newList.lstCapacity
-                - newList.elNum <= 0) {
-            newList.myList = resize(newList.myList);
-            newList.lstCapacity = newList.lstCapacity * 2;
-        }
-        newList.myList[elNum] = e;
-        newList.elNum++;
-        return newList;
+    public ImmutableArrayList add(Object e) {
+        Object[] withE = new Object[1];
+        withE[0] = e;
+        return addAll(elNum, withE);
+
+        //Залишила також внизу минулий код, який був зданий
+//        ImmutableArrayList newList = makeNew();
+//        if (newList.lstCapacity == 0 || newList.lstCapacity
+//                - newList.elNum <= 0) {
+//            newList.myList = resize(newList.myList);
+//            newList.lstCapacity = newList.lstCapacity + 1;
+//        }
+//        newList.myList[elNum] = e;
+//        newList.elNum++;
+//        return newList;
     }
 
     @Override
-    public ImmutableList add(int index, Object e) {
-        if (index >= lstCapacity || index < 0) {
-            throw new IndexOutOfBoundsException();
-        } else {
-            Object[] workList = new Object[lstCapacity + 1];
-            System.arraycopy(myList, 0, workList, 0, index);
-            workList[index] = e;
-            if (lstCapacity - index >= 0) {
-                System.arraycopy(myList, index,
-                        workList, index + 1, lstCapacity - index);
-            }
-            return new ImmutableArrayList(workList);
-        }
+    public ImmutableArrayList add(int index, Object e) {
+        checkIndex(index);
+            Object[] withE = new Object[1];
+            withE[0] = e;
+            return addAll(index, withE);
+
+        //Залишила також внизу минулий код, який був зданий
+//        if (index > size() || index < 0) {
+//            throw new IndexOutOfBoundsException();
+//        }
+//        else {
+//            Object[] workList = new Object[lstCapacity + 1];
+//            System.arraycopy(myList, 0, workList, 0, index);
+//            workList[index] = e;
+//            if (lstCapacity - index >= 0) {
+//                System.arraycopy(myList, index,
+//                        workList, index + 1, lstCapacity - index);
+//            }
+//            return new ImmutableArrayList(workList);
+//        }
     }
 
     @Override
-    public ImmutableList addAll(Object[] c) {
+    public ImmutableArrayList addAll(Object[] c) {
         ImmutableArrayList newList = makeNew();
         if (newList.lstCapacity < newList.elNum + c.length) {
             newList.myList = resize(newList.myList);
-            newList.lstCapacity = newList.lstCapacity * 2;
+            newList.lstCapacity = newList.lstCapacity + 1;
         }
         return newList.addAll(elNum, c);
     }
 
     @Override
-    public ImmutableList addAll(int index, Object[] c) {
-        if (index >= lstCapacity || index < 0) {
-            throw new IndexOutOfBoundsException();
-        } else {
+    public ImmutableArrayList addAll(int index, Object[] c) {
+        checkIndex(index);
             Object[] workList = new Object[lstCapacity + 1];
             System.arraycopy(myList, 0, workList, 0, index);
             ImmutableArrayList newList = new ImmutableArrayList(workList);
@@ -98,45 +120,41 @@ public final class ImmutableArrayList implements ImmutableList {
                     lengthC--;
                 } else {
                     newList.myList = resize(newList.myList);
-                    newList.lstCapacity = newList.lstCapacity * 2;
+                    newList.lstCapacity = newList.lstCapacity + 1;
                 }
             }
             if (newList.lstCapacity < lstCapacity + c.length) {
                 newList.myList = resize(newList.myList);
-                newList.lstCapacity = newList.lstCapacity * 2;
+                newList.lstCapacity = newList.lstCapacity + 1;
             }
             for (int e = index; e < elNum; e++) {
                 newList.myList[e + c.length] = myList[e];
                 newList.elNum++;
             }
             return newList;
-        }
     }
 
     @Override
     public Object get(int index) {
-        if (index >= lstCapacity || index < 0) {
-            throw new IndexOutOfBoundsException();
-        } else { return myList[index]; }
+        checkIndex(index);
+        return myList[index];
     }
 
     @Override
-    public ImmutableList remove(int index) {
-        if (index >= lstCapacity || index < 0) {
-            throw new IndexOutOfBoundsException();
-        } else {
+    public ImmutableArrayList remove(int index) {
+        checkIndex(index);
             ImmutableArrayList newList = makeNew();
             for (int i = index + 1; i < newList.elNum; i++) {
                 newList.myList[i - 1] = newList.myList[i];
             }
-            newList.myList[elNum - 1] = null;
+            newList.lstCapacity--;
             newList.elNum--;
+            newList.myList = resizeDown(newList.myList);
             return newList;
-        }
     }
 
     @Override
-    public ImmutableList set(int index, Object e) {
+    public ImmutableArrayList set(int index, Object e) {
         if (index >= lstCapacity || index < 0) {
             throw new IndexOutOfBoundsException();
         } else {
@@ -149,10 +167,24 @@ public final class ImmutableArrayList implements ImmutableList {
     @Override
     public int indexOf(Object e) {
         for (int i = 0; i < elNum; i++) {
-            if (myList[i] == e) { return i; }
+            if (equals(myList[i], e)) { return i; }
         }
         return -1;
     }
+
+    private boolean equals(Object given, Object val) {
+        if (this == val)
+            return true;
+        if (val == null || given.getClass() != val.getClass()) return false;
+        return Objects.equals(given, val);
+    }
+
+
+//    private double hashCode(Object val) {
+//        int p = 37;
+//        double d = 0.107;
+//        return Math.pow(p * p * (int) val, d);
+//    }
 
     @Override
     public int size() {
@@ -160,7 +192,7 @@ public final class ImmutableArrayList implements ImmutableList {
     }
 
     @Override
-    public ImmutableList clear() {
+    public ImmutableArrayList clear() {
         return new ImmutableArrayList();
     }
 
